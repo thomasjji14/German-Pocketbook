@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -17,38 +16,20 @@ def ensure_unicode(string):
         return string.decode("utf-8")
     return string
 
-
-def str2bool(v):
-    """
-    Used to parse binary flag args
-    Copy-paste from stack overflow
-    """
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Unoficial CLI for dict.cc. "\
         "It supports translations between the following languages: {}".format(
         ", ".join(AVAILABLE_LANGUAGES)))
     parser.add_argument("input_language", type=str, help="Input language",
-        choices=AVAILABLE_LANGUAGES.keys())
+        choices=list(AVAILABLE_LANGUAGES.keys()))
     parser.add_argument("output_language", type=str, help="Output language",
-        choices=AVAILABLE_LANGUAGES.keys())
+        choices=list(AVAILABLE_LANGUAGES.keys()))
     parser.add_argument("word",
                          type=ensure_unicode,
                          help=("Word to translate (use quotation marks for "
                                "phrases like \"free beer\")."))
     parser.add_argument("--max-results", "-n", type=int, default=10,
                         help="Number of results to display. -1 for no limit.")
-    parser.add_argument("--color", "-c", type=str2bool, default=True,
-                        help="Use color in output.")
     args = parser.parse_args()
 
     if args.input_language == args.output_language:
@@ -58,14 +39,14 @@ def parse_args():
 
 
 def print_header(from_lang, to_lang):
-    print(u"{}{}{}\n{}{}{}".format(
+    print(("{}{}{}\n{}{}{}".format(
         from_lang,
         " "*(LINE_LENGTH-len(from_lang)),
         to_lang,
         "="*len(from_lang),
         " "*(LINE_LENGTH-len(from_lang)),
         "="*len(to_lang),
-    ))
+    )))
 
 
 def print_translation(input_word, output_word, do_color, search_phrase):
@@ -96,9 +77,9 @@ def print_translation(input_word, output_word, do_color, search_phrase):
     # Three points less for the spaces and one point less for the equal sign,
     # so tables don't break
     padding_len = LINE_LENGTH-len(input_word)-4
-    print(u"{} {} = {}".format(apply_color(input_word),
+    print(("{} {} = {}".format(apply_color(input_word),
                                 "."*padding_len,
-                                apply_color(output_word)))
+                                apply_color(output_word))))
 
 
 
@@ -110,12 +91,12 @@ def run():
                             args.output_language)
 
     if not result.n_results:
-        print("No results found for {} ({} <-> {}).".format(
-            args.word, args.input_language, args.output_language))
+        print(("No results found for {} ({} <-> {}).".format(
+            args.word, args.input_language, args.output_language)))
         return
     else:
-        print("Showing {} of {} result(s)\n".format(
-            min(args.max_results, result.n_results), result.n_results))
+        print(("Showing {} of {} result(s)\n".format(
+            min(args.max_results, result.n_results), result.n_results)))
 
     print_header(result.from_lang, result.to_lang)
 
