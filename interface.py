@@ -4,29 +4,29 @@ from frames import *
 from fileManager import getFile
 
 def main():
-    base = Tk()
-
+    # Gets the word from the CLI
     parser = argparse.ArgumentParser()
     parser.add_argument("word", nargs = '?')
     args = parser.parse_args()
     word = args.word if args.word is not None else ""
 
-    Pocketbook(base, word)
+    base = Tk()
+
+    base.title("German Pocketbook")
+    base.geometry('600x300')
+    base.minsize(600, 300)
+
+    p = Pocketbook(base, word)
+    p.pack(expand = True, fill = BOTH)
+
     base.mainloop()
 
-class Pocketbook:
+class Pocketbook(Frame):
     def __init__(self, base, word):
-        self._base = base
-
-        self._base.title("German Pocketbook")
-        self._base.geometry('600x300')
-        self._base.minsize(600, 300)
-
-        self._pageFrame = Frame(base, borderwidth = 0, highlightthickness = 0)
-        self._pageFrame.pack(side = LEFT, expand = True, fill = BOTH)
+        super().__init__(base, borderwidth = 0, highlightthickness = 0)
 
         self._menuFrame = Frame(
-            self._pageFrame,
+            self,
             borderwidth = 0,
             highlightthickness = 0
         )
@@ -49,7 +49,7 @@ class Pocketbook:
         self._deepButton.grid(column = 1, row = 0, sticky = W)
 
         self._genericBottomFrame = Frame(
-            self._pageFrame,
+            self,
             borderwidth = 0,
             highlightthickness = 0
         )
