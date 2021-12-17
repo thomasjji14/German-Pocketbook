@@ -202,21 +202,24 @@ class translatorFrame(Frame):
             self._translatorMenuPanel,
             textvariable = self._languageSwitchText,
             command = self._switchLanguage,
-            font = ("Comic Sans MS", 9)
+            font = ("Comic Sans MS", 9),
+            bg = "light sky blue"
         )
         self._languageSwitchButton.pack(side = LEFT)
         self._doubleSwitchButton = Button(
             self._translatorMenuPanel,
             text = '⮀',
             command = self._switchBoth,
-            font = ("Comic Sans MS", 9)
+            font = ("Comic Sans MS", 9),
+            bg = "lemon chiffon"
         )
         self._doubleSwitchButton.pack(side = LEFT)
         self._textSwitchButton = Button(
             self._translatorMenuPanel,
             text = 'TEXT ⥐ TRANS',
             command = self._switchFields,
-            font = ("Comic Sans MS", 9)
+            font = ("Comic Sans MS", 9),
+            bg = "light sky blue"
         )
         self._textSwitchButton.pack(side = LEFT)
 
