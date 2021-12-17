@@ -1,8 +1,9 @@
 import sys
 import os
 
-# CREDITS TO max OF Stackoverflow. necessary for pyinstaller
-def getFile(relative_path):
+# CREDITS TO MAX OF Stackoverflow
+# Source: https://stackoverflow.com/questions/7674790/bundling-data-files-with-pyinstaller-onefile
+def getFile(relative_path) -> str:
     """ Get absolute path for PyInstaller """
     try:
         # PyInstaller creates a temp folder and stores path in _MEIPASS

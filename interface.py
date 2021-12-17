@@ -32,6 +32,17 @@ class Pocketbook(Frame):
         )
         self._menuFrame.pack(side = TOP, anchor = W)
 
+        # Keyboard bindings as shortcuts
+        self._menuFrame.bind_all("<Control-Key-1>",
+                                 lambda event: self._dickFocus())
+        self._menuFrame.bind_all("<F1>",
+                                 lambda event: self._dickFocus())
+        self._menuFrame.bind_all("<Control-Key-2>",
+                                 lambda event: self._deepFocus())
+        self._menuFrame.bind_all("<F2>",
+                                 lambda event: self._deepFocus())
+
+        # Build selection panel
         self._dictccIcon = PhotoImage(file = getFile("images/dictccIcon.png"))
         self._dickButton = Button(
             self._menuFrame,
@@ -48,6 +59,7 @@ class Pocketbook(Frame):
         )
         self._deepButton.grid(column = 1, row = 0, sticky = W)
 
+        # Holds the translator tab (no other function)
         self._genericBottomFrame = Frame(
             self,
             borderwidth = 0,
@@ -66,11 +78,11 @@ class Pocketbook(Frame):
         self._dictFrame = dictionaryFrame(self._genericBottomFrame)
         self._dictFrame.grid(column = 0, row = 0, sticky = NSEW)
 
+        # Translator
         self._translationFrame = translatorFrame(self._genericBottomFrame)
         self._translationFrame.grid(column = 0, row = 0, sticky = NSEW)
 
-        # approximate number of words (1 + numSpaces)
-        # doesn't activate both at run for faster startup
+        # Makes a guess for what the use wants to see based on the word
         if word.strip().count(" ") <= 1 or len(word) < 3:
             self._dictFrame.provideTranslation(word)
             self._dickFocus()
@@ -78,23 +90,13 @@ class Pocketbook(Frame):
             self._translationFrame.provideTranslation(word)
             self._deepFocus()
 
-        # Keyboard shortcuts to switch tabs
-        self._menuFrame.bind_all("<Control-Key-1>",
-                                 lambda event: self._dickFocus())
-        self._menuFrame.bind_all("<F1>",
-                                 lambda event: self._dickFocus())
-        self._menuFrame.bind_all("<Control-Key-2>",
-                                 lambda event: self._deepFocus())
-        self._menuFrame.bind_all("<F2>",
-                                 lambda event: self._deepFocus())
-
-    def _dickFocus(self):
-        # Forces dickFrame on screen
+    def _dickFocus(self) -> None:
+        """Forces dickFrame on screen."""
         self._translationFrame.grid_forget()
         self._dictFrame.grid(row = 0, column = 0, sticky = NSEW)
 
-    def _deepFocus(self):
-        # Forces comparisonFrame on screen
+    def _deepFocus(self) -> None:
+        """Forces comparisonFrame on screen."""
         self._dictFrame.grid_forget()
         self._translationFrame.grid(row = 0, column = 0, sticky = NSEW)
 
