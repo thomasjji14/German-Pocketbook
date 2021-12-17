@@ -4,6 +4,8 @@ A simple graphical user interface to connect both dictionary functionalities and
 <img src="/github_images/dictionary.png" width="450">
 <img src="/github_images/translator.png" width="450">
 
+Only (at the moment) works between English and German.
+
 Supports CLI arguments.
 
 ## Shortcuts:
