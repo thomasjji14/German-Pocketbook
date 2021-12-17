@@ -5,7 +5,7 @@ from dictcc import Dict
 from pydeeplator.deepL import DeepLTranslator
 from pydeeplator.deepL import TranslateLanguageEnum, TranslateModeType
 from deep_translator import GoogleTranslator
-from textblob import TextBlob
+from difflib import SequenceMatcher
 
 from fileManager import getFile
 
@@ -280,75 +280,64 @@ class translatorFrame(Frame):
         )
 
     def provideTranslation(self, textToTranslate, forceLanguage =None) -> None:
+        # This is a temporary solution, since there isn't a good way to
+        # identify text language (textblob is currently broken)
+        if forceLanguage is None:
+            # A guess needs to be made if a language isn't stated
+            # Translate into both languages, and the more dissimilar
+            # result will be the target language.
+            germanText = GoogleTranslator(
+                source = "english",
+                target = "german"
+            ).translate(textToTranslate)
+            germanSimilarity = SequenceMatcher(
+                None, textToTranslate, germanText).ratio()
+
+            englishText = result = GoogleTranslator(
+                    source = "german",
+                    target = "english"
+                ).translate(textToTranslate)
+            englishSimilarity = SequenceMatcher(
+                None, textToTranslate, englishText).ratio()
+
+            if germanSimilarity < englishSimilarity:
+                forceLanguage = ["EN", "DE"]
+            else:
+                forceLanguage = ["DE", "EN"]
+
+
         if self._useDeepL:
             try:
-                if forceLanguage is None:
-                    languageGuess = TextBlob(textToTranslate).detect_language()
+                lang1 = forceLanguage[0].upper()
+                lang2 = forceLanguage[1].upper()
 
-                    if languageGuess == "en":
-                        result = DeepLTranslator(
-                            translate_str= textToTranslate,
-                            target_lang=TranslateLanguageEnum.DE,
-                            translate_mode=TranslateModeType.SENTENCES,
-                            ).translate()['result']
-                        self._languageSwitchText.set("EN" + " ⥎ " + "DE")
-                    else:
-                        result = DeepLTranslator(
-                            translate_str= textToTranslate,
-                            target_lang=TranslateLanguageEnum.EN,
-                            translate_mode=TranslateModeType.SENTENCES,
-                            ).translate()['result']
-                        self._languageSwitchText.set("DE" + " ⥎ " + "EN")
-                else:
-                    lang1 = forceLanguage[0].upper()
-                    lang2 = forceLanguage[1].upper()
+                result = DeepLTranslator (
+                    translate_str = textToTranslate,
+                    source_lang = lang1,
+                    target_lang = lang2,
+                    translate_mode = TranslateModeType.SENTENCES,
+                ).translate()['result']
 
-                    result = DeepLTranslator (
-                        translate_str = textToTranslate,
-                        source_lang = lang1,
-                        target_lang = lang2,
-                        translate_mode = TranslateModeType.SENTENCES,
-                    ).translate()['result']
-
-                    self._languageSwitchText.set(lang1 + " ⥎ " + lang2)
+                self._languageSwitchText.set(lang1 + " ⥎ " + lang2)
             except:
                 # note: modifies deepL status to allow for the next if
                 # to run
                 self._toggleDeepStatus()
 
         if not self._useDeepL:
-            if forceLanguage is None:
-                textObject = TextBlob(textToTranslate)
-                languageGuess = textObject.detect_language()
-
-                # Note: Defaults to German if unknown
-                if languageGuess == "en":
-                    result = GoogleTranslator(
-                        source = "english",
-                        target = "german"
-                    ).translate(textToTranslate)
-                    self._languageSwitchText.set("EN" + " ⥎ " + "DE")
-                else:
-                    result = GoogleTranslator(
-                        source = 'german',
-                        target = 'english'
-                    ).translate(textToTranslate)
-                    self._languageSwitchText.set("DE" + " ⥎ " + "EN")
-            else:
-                googleLanguageMapping = {
-                    'en' : "english",
-                    "EN" : "english",
-                    'de' : "german",
-                    "DE" : "german",
-                }
-                lang1 = forceLanguage[0]
-                lang2 = forceLanguage[1]
-                result = GoogleTranslator(
-                    source = googleLanguageMapping[lang1],
-                    target = googleLanguageMapping[lang2]
-                ).translate(textToTranslate)
-                self._languageSwitchText.set(lang1 + " ⥎ " + lang2)
-
+            googleLanguageMapping = {
+                'en' : "english",
+                "EN" : "english",
+                'de' : "german",
+                "DE" : "german",
+            }
+            lang1 = forceLanguage[0]
+            lang2 = forceLanguage[1]
+            result = GoogleTranslator(
+                source = googleLanguageMapping[lang1],
+                target = googleLanguageMapping[lang2]
+            ).translate(textToTranslate)
+            self._languageSwitchText.set(lang1 + " ⥎ " + lang2)
 
         self._originalTextFrame.updateText(textToTranslate)
         self._translatedTextFrame.updateText(result)
