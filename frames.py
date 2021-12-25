@@ -71,15 +71,15 @@ class dictionaryFrame(Frame):
         self._sendWordListbox.bind(
             "<MouseWheel>",
             lambda event : self._forceScroll(
+                event,
                 self._recieveListbox,
-                event
             )
         )
         self._recieveListbox.bind(
             "<MouseWheel>",
             lambda event : self._forceScroll(
-                self._sendWordListbox,
-                event
+                event,
+                self._sendWordListbox
             )
         )
 
