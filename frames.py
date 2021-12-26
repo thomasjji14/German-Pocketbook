@@ -286,27 +286,35 @@ class translatorFrame(Frame):
         # This is a temporary solution, since there isn't a good way to
         # identify text language (textblob is currently broken)
         if forceLanguage is None:
-            # A guess needs to be made if a language isn't stated
-            # Translate into both languages, and the more dissimilar
+            # Use the past-initialized language setting if set
+            langButtonText = self._languageSwitchText.get()
+            if not '?' in langButtonText:
+                lang1 = langButtonText.split(" ⥎ ")[0]
+                lang2 = langButtonText.split(" ⥎ ")[1]
+                forceLanguage = [lang1, lang2]
+
+            # If there isn't a past search, guess by:
+            # Translating into both languages, and the more dissimilar
             # result will be the target language.
-            germanText = GoogleTranslator(
-                source = "english",
-                target = "german"
-            ).translate(textToTranslate)
-            germanSimilarity = SequenceMatcher(
-                None, textToTranslate, germanText).ratio()
-
-            englishText = result = GoogleTranslator(
-                    source = "german",
-                    target = "english"
-                ).translate(textToTranslate)
-            englishSimilarity = SequenceMatcher(
-                None, textToTranslate, englishText).ratio()
-
-            if germanSimilarity < englishSimilarity:
-                forceLanguage = ["EN", "DE"]
             else:
-                forceLanguage = ["DE", "EN"]
+                germanText = GoogleTranslator(
+                    source = "english",
+                    target = "german"
+                ).translate(textToTranslate)
+                germanSimilarity = SequenceMatcher(
+                    None, textToTranslate, germanText).ratio()
+
+                englishText = GoogleTranslator(
+                        source = "german",
+                        target = "english"
+                    ).translate(textToTranslate)
+                englishSimilarity = SequenceMatcher(
+                    None, textToTranslate, englishText).ratio()
+
+                if germanSimilarity < englishSimilarity:
+                    forceLanguage = ["EN", "DE"]
+                else:
+                    forceLanguage = ["DE", "EN"]
 
 
         if self._useDeepL:
