@@ -41,6 +41,8 @@ class Pocketbook(Frame):
                                  lambda event: self._deepFocus())
         self._menuFrame.bind_all("<F2>",
                                  lambda event: self._deepFocus())
+        self._menuFrame.bind_all("<F6>",
+                                 lambda event: self._activeFrame.focusInput())
 
         # Build selection panel
         self._dictccIcon = PhotoImage(file = getFile("images/dictccIcon.png"))
@@ -74,6 +76,8 @@ class Pocketbook(Frame):
         self._genericBottomFrame.grid_rowconfigure(0, weight = 1)
         self._genericBottomFrame.grid_columnconfigure(0, weight = 1)
 
+        self._activeFrame = None
+
         # Dict.cc
         self._dictFrame = dictionaryFrame(self._genericBottomFrame)
         self._dictFrame.grid(column = 0, row = 0, sticky = NSEW)
@@ -94,11 +98,15 @@ class Pocketbook(Frame):
         """Forces dickFrame on screen."""
         self._translationFrame.grid_forget()
         self._dictFrame.grid(row = 0, column = 0, sticky = NSEW)
+        self._dictFrame.focusInput()
+        self._activeFrame = self._dictFrame
 
     def _deepFocus(self) -> None:
         """Forces comparisonFrame on screen."""
         self._dictFrame.grid_forget()
         self._translationFrame.grid(row = 0, column = 0, sticky = NSEW)
+        self._translationFrame.focusInput()
+        self._activeFrame = self._translationFrame
 
 if __name__ == "__main__":
     main()

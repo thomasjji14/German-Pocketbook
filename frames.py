@@ -157,6 +157,9 @@ class dictionaryFrame(Frame):
         """Returns the search term."""
         return self._searchText.get()
 
+    def focusInput(self) -> None:
+        self._searchBar.focus()
+
     class dictionaryListBox(Listbox):
         """Custom listbox, with text and color edits"""
         def __init__(self, root, text = "", textFont = ("Arial", 12)):
@@ -238,10 +241,10 @@ class translatorFrame(Frame):
             lambda event : self.provideTranslation(self.getCurrentText())
         )
 
-        super().bind_all("<F12>", lambda event : self._toggleDeepStatus())
+        super().bind_all("<F3>",  lambda event : self._switchFields())
+        super().bind_all("<F4>",  lambda event : self._switchLanguage())
         super().bind_all("<F5>",  lambda event : self._switchBoth())
-        super().bind_all("<F6>",  lambda event : self._switchLanguage())
-        super().bind_all("<F7>",  lambda event : self._switchFields())
+        super().bind_all("<F12>", lambda event : self._toggleDeepStatus())
 
         if len(textToTranslate) != 0:
             self.provideTranslation(textToTranslate)
@@ -345,6 +348,9 @@ class translatorFrame(Frame):
     def getCurrentText(self) -> None:
         return self._originalTextFrame.getText()
 
+    def focusInput(self) -> None:
+        self._originalTextFrame.focusInput()
+
     class TextFrame(Frame):
         """Custom Frame to allow for updatable text"""
         def __init__(self, root, lockEntry = True):
@@ -376,3 +382,6 @@ class translatorFrame(Frame):
 
         def bindText(self, key, binding) -> None:
             self._text.bind(key, binding)
+
+        def focusInput(self) -> None:
+            self._text.focus()
