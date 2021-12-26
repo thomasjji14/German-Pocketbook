@@ -353,6 +353,8 @@ class translatorFrame(Frame):
         self._originalTextFrame.updateText(textToTranslate)
         self._translatedTextFrame.updateText(result)
 
+        return "break"
+
     def getCurrentText(self) -> None:
         return self._originalTextFrame.getText()
 
