@@ -6,7 +6,6 @@ from pydeeplator.deepL import DeepLTranslator
 from pydeeplator.deepL import TranslateLanguageEnum, TranslateModeType
 from deep_translator import GoogleTranslator
 from difflib import SequenceMatcher
-
 from fileManager import getFile
 
 class dictionaryFrame(Frame):
@@ -241,8 +240,8 @@ class translatorFrame(Frame):
             lambda event : self.provideTranslation(self.getCurrentText())
         )
 
-        super().bind_all("<F3>",  lambda event : self._switchFields())
-        super().bind_all("<F4>",  lambda event : self._switchLanguage())
+        super().bind_all("<Prior>",  lambda event : self._switchFields())
+        super().bind_all("<Next>",  lambda event : self._switchLanguage())
         super().bind_all("<F5>",  lambda event : self._switchBoth())
         super().bind_all("<F12>", lambda event : self._toggleDeepStatus())
 

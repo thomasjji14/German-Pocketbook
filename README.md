@@ -17,9 +17,9 @@ F2 or Control+2: Switch to Translator tab
 ### Translator:
 F5: Switch both language and text.
 
-F6: Switch language.
+Page Up: Switch language.
 
-F7: Switch text.
+Page Down: Switch text.
 
 F12: Toggle DeepL usage.
 
