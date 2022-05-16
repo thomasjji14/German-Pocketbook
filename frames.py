@@ -1,3 +1,4 @@
+from cgitb import text
 from tkinter import *
 from tkinter.font import BOLD
 
@@ -7,6 +8,8 @@ from pydeeplator.deepL import TranslateLanguageEnum, TranslateModeType
 from deep_translator import GoogleTranslator
 from difflib import SequenceMatcher
 from fileManager import getFile
+from wiktionaryparser import WiktionaryParser
+from functools import reduce
 
 class dictionaryFrame(Frame):
     """ An interface to use with dict.cc. """
@@ -182,6 +185,125 @@ class dictionaryFrame(Frame):
             self._wordVar.set(text)
             self._checkerRows(text)
 
+class wiktionaryFrame(Frame):
+    """ An interface to use with wikitionary.org """
+
+    def __init__(self, root):
+        super().__init__(root, borderwidth = 0, highlightthickness = 0)
+        super().grid_rowconfigure(2, weight = 1)
+        super().grid_columnconfigure(0, weight = 1)
+        super().grid_columnconfigure(1, weight = 1)
+
+        self._searchText = StringVar()
+        self._searchBar = Entry(
+            self, textvariable = self._searchText,
+            font = ("Arial", 12, BOLD)
+        )
+        self._searchBar.grid(
+            row = 0, column = 0, columnspan = 2, sticky = EW
+        )
+        self._searchBar.bind(
+            "<Return>",
+            lambda event : self.provideTranslation(
+                self._searchText.get()
+            )
+        )
+
+        self._posFrame = Frame(self)
+
+        self._posLabel = Label(
+            self._posFrame,
+            text = "Part of Speech: ",
+            font = ("Times New Roman", 12, "bold")
+        )
+
+        self._posText = StringVar()
+        self._posText.set("")
+        self._posTextLabel = Label(
+            self._posFrame,
+            textvariable = self._posText,
+            font = ("Times New Roman", 12)
+        )
+
+        self._posLabel.pack(side = LEFT, anchor = W)
+        self._posTextLabel.pack(side = LEFT, anchor=W, fill = X)
+
+        self._posFrame.grid(row = 1, column = 0, columnspan = 2, sticky = EW)
+
+        self._definitionFrame = Frame(self)
+
+        self._definitionLabel = Label(
+            self._definitionFrame,
+            text = "Definition",
+            font = ("Times New Roman", 12, "bold")
+        )
+
+        self._definitionLabel.pack(side = TOP, anchor = W)
+
+        self._definitionText = TextFrame(self._definitionFrame)
+
+        self._definitionText.pack(side = TOP, anchor = NW,
+                                  fill = BOTH, expand = True)
+
+        self._definitionFrame.grid(row = 2, column = 0, sticky=NSEW)
+
+
+        self._exampleFrame = Frame(self)
+
+        self._exampleLabel = Label(
+            self._exampleFrame,
+            text = "Example",
+            font = ("Times New Roman", 12, "bold")
+        )
+
+        self._exampleLabel.pack(side = TOP, anchor = W)
+
+        self._exampleText = TextFrame(self._exampleFrame)
+
+        self._exampleText.pack(side = TOP, anchor = W,
+                               fill = BOTH, expand = True)
+
+        self._exampleFrame.grid(row = 2, column = 1, sticky=NSEW)
+
+    def provideTranslation(self, textToTranslate) -> None:
+        def failRoutine():
+            self._posText.set("Invalid Word")
+            self._definitionText.updateText("")
+            self._exampleText.updateText("")
+
+        """Updates the frame based on the input text."""
+        self._searchText.set(textToTranslate)
+
+        parser = WiktionaryParser()
+        wordRequest = parser.fetch(textToTranslate, "german")
+        if len(wordRequest) == 0:
+            failRoutine()
+            return
+
+        wordDefinitions = wordRequest[0]["definitions"]
+        if len(wordDefinitions) == 0:
+            failRoutine()
+            return
+
+        wordData = wordDefinitions[0]
+        pos = wordData["partOfSpeech"]
+        definitions = wordData["text"]
+        examples = wordData["examples"]
+
+        self._posText.set(pos)
+        self._definitionText.updateText(
+            reduce(lambda acc, e: acc + e + "\n•", definitions, "•")[:-2])
+        self._exampleText.updateText(
+            reduce(lambda acc, e: acc + e + "\n•", examples, "•")[:-2])
+
+    def getCurrentText(self) -> str:
+        """Returns the search term."""
+        return self._searchText.get()
+
+    def focusInput(self) -> None:
+        self._searchBar.focus()
+
+
 class translatorFrame(Frame):
     """ An interface to use with Google Translate/DeepL. """
     def __init__(self, root, textToTranslate = ""):
@@ -191,10 +313,10 @@ class translatorFrame(Frame):
         self._translatorMenuPanel = Frame(self)
         self._translatorMenuPanel.pack(side = TOP, fill = X)
 
-        self._originalTextFrame = self.TextFrame(self, lockEntry = False)
+        self._originalTextFrame = TextFrame(self, lockEntry = False)
         self._originalTextFrame.pack(side = TOP, expand = True, fill = BOTH)
 
-        self._translatedTextFrame = self.TextFrame(self)
+        self._translatedTextFrame = TextFrame(self)
         self._translatedTextFrame.pack(side = BOTTOM,
                                         expand = True, fill = BOTH)
 
@@ -360,37 +482,37 @@ class translatorFrame(Frame):
     def focusInput(self) -> None:
         self._originalTextFrame.focusInput()
 
-    class TextFrame(Frame):
-        """Custom Frame to allow for updatable text"""
-        def __init__(self, root, lockEntry = True):
-            super().__init__(root, borderwidth = 0, highlightthickness = 0)
-            super().pack_propagate(False)
-            self._isLocked = lockEntry
-            self._text = Text(
-                self,
-                height = 100,
-                font = ("Times New Roman", 12),
-                wrap = WORD
-            )
-            self._text.insert(END, "")
-            self._text.pack(anchor = W, fill = BOTH, side = BOTTOM)
-            self._text.configure(state = DISABLED if lockEntry else NORMAL)
+class TextFrame(Frame):
+    """Custom Frame to allow for updatable text"""
+    def __init__(self, root, lockEntry = True):
+        super().__init__(root, borderwidth = 0, highlightthickness = 0)
+        super().pack_propagate(False)
+        self._isLocked = lockEntry
+        self._text = Text(
+            self,
+            height = 100,
+            font = ("Times New Roman", 12),
+            wrap = WORD
+        )
+        self._text.insert(END, "")
+        self._text.pack(anchor = W, fill = BOTH, side = BOTTOM)
+        self._text.configure(state = DISABLED if lockEntry else NORMAL)
 
-        def updateText(self, updatedText) -> None:
-            self._text.configure(state = NORMAL)
-            self._text.delete("1.0", END)
-            self._text.insert(END, updatedText)
-            self._text.configure(
-                state = DISABLED if self._isLocked else NORMAL)
+    def updateText(self, updatedText) -> None:
+        self._text.configure(state = NORMAL)
+        self._text.delete("1.0", END)
+        self._text.insert(END, updatedText)
+        self._text.configure(
+            state = DISABLED if self._isLocked else NORMAL)
 
-        def getText(self) -> str:
-            return self._text.get("1.0",'end-1c')
+    def getText(self) -> str:
+        return self._text.get("1.0",'end-1c')
 
-        def updateHeaderText(self, text) -> None:
-            self._languageHeaderText.set(text)
+    def updateHeaderText(self, text) -> None:
+        self._languageHeaderText.set(text)
 
-        def bindText(self, key, binding) -> None:
-            self._text.bind(key, binding)
+    def bindText(self, key, binding) -> None:
+        self._text.bind(key, binding)
 
-        def focusInput(self) -> None:
-            self._text.focus()
+    def focusInput(self) -> None:
+        self._text.focus()

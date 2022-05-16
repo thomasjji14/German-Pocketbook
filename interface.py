@@ -38,8 +38,12 @@ class Pocketbook(Frame):
         self._menuFrame.bind_all("<F1>",
                                  lambda event: self._dickFocus())
         self._menuFrame.bind_all("<Control-Key-2>",
-                                 lambda event: self._deepFocus())
+                                 lambda event: self._wikFocus())
         self._menuFrame.bind_all("<F2>",
+                                 lambda event: self._wikFocus())
+        self._menuFrame.bind_all("<Control-Key-3>",
+                                 lambda event: self._deepFocus())
+        self._menuFrame.bind_all("<F3>",
                                  lambda event: self._deepFocus())
         self._menuFrame.bind_all("<F6>",
                                  lambda event: self._activeFrame.focusInput())
@@ -52,14 +56,24 @@ class Pocketbook(Frame):
             image = self._dictccIcon
         )
         self._dickButton.grid(column = 0, row = 0, sticky = W)
+
+        self._wikIcon = PhotoImage(file = getFile("images/wikIcon.png"))
+        self._wikButton = Button(
+            self._menuFrame,
+            command = self._wikFocus,
+            image = self._wikIcon
+        )
+        self._wikButton.grid(column = 1, row = 0, sticky = W)
+
         self._deepIcon = PhotoImage(file = getFile(
                                         "images/translatorIcon.png"))
+
         self._deepButton = Button(
             self._menuFrame,
             image = self._deepIcon,
             command = self._deepFocus
         )
-        self._deepButton.grid(column = 1, row = 0, sticky = W)
+        self._deepButton.grid(column = 2, row = 0, sticky = W)
 
         # Holds the translator tab (no other function)
         self._genericBottomFrame = Frame(
@@ -82,6 +96,10 @@ class Pocketbook(Frame):
         self._dictFrame = dictionaryFrame(self._genericBottomFrame)
         self._dictFrame.grid(column = 0, row = 0, sticky = NSEW)
 
+        # Wiktionary
+        self._wikFrame = wiktionaryFrame(self._genericBottomFrame)
+        self._wikFrame.grid(column = 0, row = 0, sticky = NSEW)
+
         # Translator
         self._translationFrame = translatorFrame(self._genericBottomFrame)
         self._translationFrame.grid(column = 0, row = 0, sticky = NSEW)
@@ -97,13 +115,22 @@ class Pocketbook(Frame):
     def _dickFocus(self) -> None:
         """Forces dickFrame on screen."""
         self._translationFrame.grid_forget()
+        self._wikFrame.grid_forget()
         self._dictFrame.grid(row = 0, column = 0, sticky = NSEW)
         self._dictFrame.focusInput()
         self._activeFrame = self._dictFrame
 
+    def _wikFocus(self) -> None:
+        self._translationFrame.grid_forget()
+        self._dictFrame.grid_forget()
+        self._wikFrame.grid(row = 0, column = 0, sticky = NSEW)
+        self._wikFrame.focusInput()
+        self._activeFrame = self._wikFrame
+
     def _deepFocus(self) -> None:
         """Forces comparisonFrame on screen."""
         self._dictFrame.grid_forget()
+        self._wikFrame.grid_forget()
         self._translationFrame.grid(row = 0, column = 0, sticky = NSEW)
         self._translationFrame.focusInput()
         self._activeFrame = self._translationFrame
