@@ -114,6 +114,9 @@ class Pocketbook(Frame):
 
     def _dickFocus(self) -> None:
         """Forces dickFrame on screen."""
+        # if wikFrame was last present, transfer the word
+        if self._wikFrame.winfo_ismapped():
+            self._dictFrame.provideTranslation(self._wikFrame.getCurrentText())
         self._translationFrame.grid_forget()
         self._wikFrame.grid_forget()
         self._dictFrame.grid(row = 0, column = 0, sticky = NSEW)
@@ -121,6 +124,9 @@ class Pocketbook(Frame):
         self._activeFrame = self._dictFrame
 
     def _wikFocus(self) -> None:
+        # if dictFrame was last present, transfer the word
+        if self._dictFrame.winfo_ismapped():
+            self._wikFrame.provideTranslation(self._dictFrame.getCurrentText())
         self._translationFrame.grid_forget()
         self._dictFrame.grid_forget()
         self._wikFrame.grid(row = 0, column = 0, sticky = NSEW)
