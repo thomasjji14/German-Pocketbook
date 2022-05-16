@@ -23,7 +23,7 @@ def main():
 
 class Pocketbook(Frame):
     def __init__(self, base, word):
-        super().__init__(base, borderwidth = 0, highlightthickness = 0)
+        super().__init__(base, borderwidth = 2, highlightthickness = 0)
 
         self._menuFrame = Frame(
             self,
